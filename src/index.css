@@ -1,5 +1,6 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -11,6 +12,72 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* CSS custom properties */
+  --font-stack: "Press Start 2P", Verdana, Geneva, Tahoma, sans-serif;
+
+  /* Tablet sizing */
+  --canvas_width_tablet: 650px;
+  --canvas_height_tablet: 488px;
+
+  /* Desktop sizing */
+  --canvas_width: 800px;
+  --canvas_height: 600px;
+  --header_height: 50px;
+  --beside_canvas: 28vw; /* space left/right of canvas */
+
+  /* Colors */
+  --background-color: #00212b;
+  --text-color: white;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-stack);
+  background: url("https://www.transparenttextures.com/patterns/asfalt-light.png");
+  background-color: var(--background-color);
+  color: var(--text-color); /* body text color */
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  justify-content: center;
+}
+
+/* React Application <div id="root"> */
+#root {
+  width: 100%;
+  height: 1200px;
+  font-size: 1em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+#root ul {
+  list-style: none;
+}
+
+/* Center the canvas */
+canvas {
+  margin-top: 8px;
+  border: 3px solid white;
+  border-radius: 20px;
+
+  /* Use the smaller of 95vw or 800px */
+  width: min(95vw, var(--canvas_width));
+
+  /* Maintain the game's aspect ratio */
+  aspect-ratio: 800/600;
 }
 
 a {
@@ -20,14 +87,6 @@ a {
 }
 a:hover {
   color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
 }
 
 h1 {
@@ -54,8 +113,9 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
+/* VITE DEFAULT CSS FOR LIGHT MODE */
+/* @media (prefers-color-scheme: light) {
+  :root { 
     color: #213547;
     background-color: #ffffff;
   }
@@ -65,4 +125,105 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+} */
+
+/* ----- MEDIA QUERIES ----- */
+/* Design is mobile-first */
+/* Queries below cover tablet and desktop */
+
+/* Tablet or narrowed-browser screen */
+@media all and (min-width: 682px) and (max-width: 998px) {
+  canvas {
+    width: var(--canvas_width_tablet);
+    height: var(--canvas_height_tablet);
+    margin-bottom: 0;
+  }
+
+  div.asideGame {
+    width: calc(0.8 * var(--canvas_width_tablet));
+  }
+}
+
+/* Tablet and above: minimum width of 668px */
+@media all and (min-width: 999px) {
+  .box-title {
+    color: teal;
+  }
+
+  body {
+    flex-direction: row;
+    justify-content: start;
+  }
+
+  header {
+    height: var(--header_height);
+    display: inherit;
+  }
+
+  canvas {
+    position: absolute;
+    margin-top: 1.5em;
+    top: var(--header_height);
+    left: var(--beside_canvas);
+    width: var(--canvas_width);
+    height: var(--canvas_height);
+  }
+
+  #root {
+    width: var(--beside_canvas);
+    height: fit-content;
+  }
+
+  div.asideGame {
+    width: calc(var(--beside_canvas) - 3vw);
+  }
+}
+
+/* Navigation list shared styles */
+nav {
+  display: flex;
+  justify-content: space-between;
+  list-style: none;
+  width: 100%;
+  height: 100%;
+}
+
+nav li:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* LOCKDOWN logo */
+nav .logo {
+  font-size: 2em;
+  line-height: 0.5em;
+  width: calc(var(--beside_canvas) - 5vw);
+  padding: 0.5em;
+  text-align: center;
+}
+
+/* Main Navigation */
+nav .nav-list {
+  width: var(--canvas_width);
+  display: flex;
+  justify-content: space-between;
+  list-style: none;
+}
+
+nav .nav-list li:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Login/Register */
+nav .login {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: calc(var(--beside_canvas) - 6vw);
+  color: teal;
+}
+
+nav .login ul {
+  margin: 0;
 }

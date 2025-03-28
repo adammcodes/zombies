@@ -1,0 +1,22 @@
+.highscores-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  padding: 0em;
+}
+
+.score-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 1em;
+  font-size: 0.8em;
+}
+
+.score-username {
+  color: inherit;
+}
+
+.score-value {
+  text-align: right;
+}

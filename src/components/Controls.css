@@ -1,0 +1,22 @@
+.controls-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  padding: 0em;
+}
+
+.control-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 1em;
+  font-size: 0.8em;
+}
+
+.control-key {
+  color: inherit;
+}
+
+.control-value {
+  text-align: right;
+}

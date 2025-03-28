@@ -11,10 +11,15 @@
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "*": ["src/*"]
+    },
 
     /* Linting */
     "strict": true,
@@ -24,8 +29,8 @@
     "noUncheckedSideEffectImports": true,
 
     /* Phaser Types */
-    "typeRoots": ["./node_modules/phaser/types"],
+    "typeRoots": ["./node_modules/phaser/types", "./node_modules/@types"],
     "types": ["phaser"]
   },
-  "include": ["src"]
+  "include": ["src/**/*"]
 }

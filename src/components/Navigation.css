@@ -1,0 +1,49 @@
+/* Navigation list shared styles */
+nav {
+  font-family: var(--font-stack);
+  display: flex;
+  justify-content: space-between;
+  list-style: none;
+  width: 100%;
+  height: 100%;
+}
+
+nav li:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* LOCKDOWN logo */
+nav .logo {
+  font-size: 2em;
+  line-height: 0.5em;
+  width: calc(var(--beside_canvas) - 5vw);
+  padding: 0.5em;
+  text-align: center;
+}
+
+/* Main Navigation */
+nav .nav-list {
+  width: var(--canvas_width);
+  display: flex;
+  justify-content: space-between;
+  list-style: none;
+}
+
+nav .nav-list li:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Login/Register */
+nav .login {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: calc(var(--beside_canvas) - 6vw);
+  color: teal;
+}
+
+nav .login ul {
+  margin: 0;
+}

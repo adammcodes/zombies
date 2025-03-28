@@ -1,32 +1,46 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Navigation from "./components/Navigation";
+import GameStats from "./components/GameStats";
+import GameTabContainer from "./components/GameTabContainer";
+// styles
+import "./index.css";
 import "./App.css";
-import game from "./game";
 
 function App() {
-  const gameContainer = useRef<HTMLDivElement>(null);
+  const [gameSession, setGameSession] = useState(null);
+  const [highscores, setHighscores] = useState([]);
+  // const [user, setUser] = useState(null);
 
+  // retrieve highscores from db on first render
+  // update highscores when post request to insert a game session into db is successful
+  // then setGameSession will update gameSession state with new game session
   useEffect(() => {
-    if (gameContainer.current) {
-      // Mount the game to the container
-      game.scale.resize(
-        gameContainer.current.clientWidth,
-        gameContainer.current.clientHeight
-      );
-      gameContainer.current.appendChild(game.canvas);
+    if (gameSession) {
+      axios
+        .get(`api/users/highscores`)
+        .then((res) => {
+          // response from server is game sessions array (length 10) sorted by score
+          // give sorted array of {} to <Highscores> as props.scores
+          setHighscores(res.data);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
     }
-
-    // Cleanup function
-    return () => {
-      if (gameContainer.current) {
-        gameContainer.current.removeChild(game.canvas);
-      }
-    };
-  }, []);
+  }, [gameSession]);
 
   return (
-    <div ref={gameContainer} style={{ width: "100vw", height: "100vh" }}>
-      {/* Phaser game will be mounted here */}
-    </div>
+    <>
+      <Navigation />
+      <div className="asideGame">
+        <GameStats saveGame={setGameSession} />
+        {/* <GameTabContainer captionText="Log In" /> */}
+        <GameTabContainer captionText="Options" />
+        <GameTabContainer captionText="Highscores" scores={highscores} />
+        <GameTabContainer captionText="Controls" />
+      </div>
+    </>
   );
 }
 
