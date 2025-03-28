@@ -8,6 +8,7 @@
   /* Hide scrollbar for IE, Edge and Firefox */
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+  margin-top: 1em;
 }
 
 .asideGame .sidetab {
@@ -36,23 +37,6 @@
   color: red;
 }
 
-table {
-  transition: max-height 0.5s ease;
-  max-height: 20px;
-}
-
-table tbody,
-table tfoot {
-  overflow: hidden;
-}
-
-table tfoot {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
 .open {
   max-height: 300px;
   transition: max-height 0.5s ease;
@@ -78,10 +62,4 @@ table tfoot {
     visibility: visible;
     opacity: 1;
   }
-}
-
-tbody tr {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8em;
 }
