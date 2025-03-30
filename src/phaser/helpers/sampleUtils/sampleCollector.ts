@@ -2,7 +2,7 @@ import { sceneEvents } from "@/phaser/utils/SceneEvents";
 
 export default function sampleCollector(player, sample, thisScene) {
   thisScene.samplesTouched = true;
-  const sampleLocations = thisScene.sampleObjs; // aka this.sampleObjs
+  const sampleLocations = thisScene.sampleLocations; // aka this.sampleLocations
 
   // hide sprite, disable body
   thisScene.samples.killAndHide(sample);

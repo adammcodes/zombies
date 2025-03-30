@@ -1,12 +1,31 @@
+import Player from "@/phaser/characters/Player";
+import Zombie from "@/phaser/characters/Zombie";
+
+// Game Types
+import { BossRoom } from "@/phaser/types/game";
 import { sceneEvents } from "@/phaser/utils/SceneEvents";
 
-export default function zombieDamage(zombie, shot, scene, player, bossRoom) {
-  if (zombie.zombieData.health === 0) {
+export default function zombieDamage({
+  zombie,
+  player,
+  shot,
+  bossRoom,
+}: {
+  zombie: Zombie;
+  shot: Phaser.GameObjects.Sprite;
+  player: Player;
+  bossRoom?: BossRoom;
+}) {
+  if (zombie.health === 0 && zombie.body) {
     zombie.setVisible(false);
-    zombie.body.enable = false;
+    // @ts-ignore
+    zombie.body.enable = false; // Disable physics body
+    zombie.destroy(); // Remove the zombie game object completely
+
     // Increment kill count and emit event
-    player.gameData.kills += 1;
+    player.gameData.kills++;
     sceneEvents.emit("zombie-killed", player.gameData.kills);
+
     // Keep track of kills in bossRoom for conditional chest render
     if (bossRoom) {
       const { key, scene, map, tileset, player } = bossRoom;
@@ -14,7 +33,7 @@ export default function zombieDamage(zombie, shot, scene, player, bossRoom) {
     }
   } else {
     zombie.tint = Math.random() * 0xffffff;
-    zombie.zombieData.health -= 1;
+    zombie.health -= 1;
     const directionX = zombie.x - shot.x;
     const directionY = zombie.y - shot.y;
     const direction = new Phaser.Math.Vector2(directionX, directionY)

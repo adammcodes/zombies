@@ -1,3 +1,5 @@
+import { GameData } from "@/phaser/types/game";
+import { HEALTH_MAX } from "./GameScore";
 const debug = false;
 
 // Add WebFont type declaration
@@ -148,10 +150,11 @@ export default class Intro extends Phaser.Scene {
               }
 
               // When starting the game fresh, we use this initial state
-              const data = {
+              const data: GameData = {
                 comingFrom: "Intro",
-                health: 500,
+                health: HEALTH_MAX,
                 inventory: [],
+                kills: 0,
                 avatar: options.avatar,
                 sampleLocations: {
                   Dungeon: null,

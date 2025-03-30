@@ -3,6 +3,8 @@ import calculateScore from "@/phaser/helpers/dataUtils/calculateScore";
 
 declare const WebFont: any;
 
+export const HEALTH_MAX = 500;
+
 /* ------------------------------------ GameScore Scene  ------------------------ */
 // Shows the player their game session score & game statistics
 // Gives option for user to register to save their score into db (if not logged in)
@@ -38,7 +40,7 @@ export default class GameScore extends Phaser.Scene {
 
     // playerScore template string columns are separated by tabs
     const playerScore = `\n
-      HEALTH:   ${health}/500
+      HEALTH:   ${health}/${HEALTH_MAX}
       SAMPLES:  ${samples}/36
       KILLS:    ${kills}
       ANTIDOTE: ${antidote ? `+10000` : `None`}
@@ -112,7 +114,7 @@ export default class GameScore extends Phaser.Scene {
     // Reset local gameData
     const resetData = {
       comingFrom: "Intro",
-      health: 500,
+      health: HEALTH_MAX,
       kills: 0,
       inventory: [],
       avatar: data.avatar,

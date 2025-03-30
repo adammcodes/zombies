@@ -1,5 +1,6 @@
 import Entity from "../entities/Entity";
-
+import { GameData, Sample } from "../types/game";
+import { HEALTH_MAX } from "../scenes/dialogues/GameScore";
 /* --------------------------------- Player Class ----------------------------------- */
 
 let playerHit = 0;
@@ -53,23 +54,29 @@ export default class Player extends Entity {
     }
   }
 
+  gameData: GameData;
+  isDead: boolean = false;
+
   constructor(
-    scene,
-    x,
-    y,
-    textureKey,
-    inventory,
-    health,
-    sampleLocations,
-    kills
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    textureKey: string,
+    inventory: Sample[],
+    health: number,
+    sampleLocations: Record<string, Phaser.Tilemaps.ObjectLayer[] | null>,
+    kills: number
   ) {
-    super(scene, x, y, textureKey);
-    this.gameData = {};
-    this.gameData.inventory = inventory ? inventory : []; // initialized as []
-    this.gameData.health = health ? health : 500; // initialized as 500
-    this.gameData.sampleLocations = sampleLocations;
-    this.gameData.kills = kills ? kills : 0;
-    this.gameData.avatar = textureKey;
+    super(scene, x, y, textureKey, inventory);
+    this.gameData = {
+      inventory: inventory ? inventory : [], // initialized as []
+      health: health ? health : HEALTH_MAX, // initialized as 500
+      sampleLocations: sampleLocations,
+      kills: kills ? kills : 0,
+      avatar: textureKey,
+      comingFrom: scene.scene.key,
+    };
+
     this.scene = scene;
 
     // Call the static method instead of creating animations directly

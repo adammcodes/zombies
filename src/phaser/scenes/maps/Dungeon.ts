@@ -18,6 +18,7 @@ import zombieHit from "@/phaser/helpers/zombieUtils/zombieHit";
 
 // Event emitter for React GameStats component & Phaser GameUI util
 import { sceneEvents } from "@/phaser/utils/SceneEvents";
+import Zombie from "@/phaser/characters/Zombie";
 
 /* ------- Dungeon scene Class -------- */
 
@@ -27,6 +28,7 @@ export default class Dungeon extends Phaser.Scene {
   }
 
   zombies = [];
+  shots!: Shots;
   samplesTouched = false;
 
   init(data: any) {
@@ -72,9 +74,9 @@ export default class Dungeon extends Phaser.Scene {
 
     // Get sample object layer from Tiled data if the player doesn't already have sample data
     if (this.samplesTouched) {
-      this.sampleObjs = [...data.sampleLocations["Dungeon"]];
+      this.sampleLocations = [...data.sampleLocations["Dungeon"]];
     } else {
-      this.sampleObjs = map.objects.find(
+      this.sampleLocations = map.objects.find(
         (layer) => layer.name === "samples"
       ).objects;
     }
@@ -95,7 +97,7 @@ export default class Dungeon extends Phaser.Scene {
     const player = this.player;
 
     // Create samples and set overlap with player
-    this.samples = createSamples(this.sampleObjs, this);
+    this.samples = createSamples(this.sampleLocations, this);
     this.samples.refresh();
     this.physics.add.overlap(this.player, this.samples, (player, sample) => {
       sampleCollector(player, sample, this);
@@ -105,6 +107,11 @@ export default class Dungeon extends Phaser.Scene {
     const zombieObjs = map.objects.find(
       (layer) => layer.name === "zombies"
     ).objects;
+
+    // Create zombie animations first
+    Zombie.createAnimations(this.anims, "zombie");
+
+    // Create zombies
     zombieFactory(this, zombieObjs, "zombie", this.player, obstacles);
 
     //create shots
@@ -127,14 +134,17 @@ export default class Dungeon extends Phaser.Scene {
       this.physics.add.overlap(this.player, zombie, zombieHit);
     });
 
-    // Zombie-shot collisions
     this.zombies.forEach((zombie) => {
-      this.physics.add.collider(this.shots, zombie, (shot, zombie) => {
+      this.physics.add.collider(this.shots, zombie, (shot) => {
         let individualShot = this.shots.getFirstAlive();
         if (individualShot) {
           individualShot.setVisible(false);
           individualShot.setActive(false);
-          zombieDamage(shot, zombie, this, this.player);
+          zombieDamage({
+            shot: shot as Phaser.GameObjects.Sprite,
+            zombie,
+            player,
+          });
         }
       });
     });

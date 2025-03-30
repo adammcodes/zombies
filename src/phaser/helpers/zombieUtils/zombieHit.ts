@@ -11,9 +11,11 @@ export default function zombieHit(player, zombie) {
   // mess up the player more if boss
   if (zombie.textureKey === "zombieKing") {
     player.gameData.health -= 1;
+    console.log("player.gameData.health", player.gameData.health);
     player.bounceBack(direction);
   } else {
     player.gameData.health -= 0.5;
+    console.log("player.gameData.health", player.gameData.health);
   }
 
   player.tint = Math.random() * 0xffffff;

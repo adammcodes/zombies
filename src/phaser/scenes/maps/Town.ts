@@ -1,8 +1,12 @@
 // Event emitter for React GameStats component & Phaser GameUI util
 import { sceneEvents } from "@/phaser/utils/SceneEvents";
 
+// Game Types
+import { GameData } from "@/phaser/types/game";
+
 // Game Entities
 import Player from "@/phaser/characters/Player";
+import Zombie from "@/phaser/characters/Zombie";
 import Shots from "@/phaser/entities/Shots";
 import testnpc from "@/phaser/characters/testnpc";
 import { createNpcAnims } from "@/phaser/utils/createNPCAnims";
@@ -29,8 +33,9 @@ export default class Town extends Phaser.Scene {
   }
 
   player: Player | null = null;
-  samples: any[] | null = null;
-  sampleObjs: any[] = [];
+  shots!: Shots;
+  samples: Phaser.Physics.Arcade.StaticGroup | null = null;
+  sampleLocations: Phaser.Types.Tilemaps.TiledObject[] = [];
 
   // Set these to where you want the game to drop the player on start
 
@@ -46,10 +51,10 @@ export default class Town extends Phaser.Scene {
   // startingX = 450;
   // startingY = 1000;
 
-  zombies = [];
+  zombies: Zombie[] = [];
   samplesTouched = false;
 
-  init(data: any) {
+  init(data: GameData) {
     // adjust start location
     if (data.comingFrom === "Forest") {
       this.startingX = 1276;
@@ -74,7 +79,7 @@ export default class Town extends Phaser.Scene {
     preloadAssets(this);
   }
 
-  create(data: any) {
+  create(data: GameData) {
     //fade in scene
     this.cameras.main.fadeIn(2000);
 
@@ -102,17 +107,26 @@ export default class Town extends Phaser.Scene {
 
     map.createLayer("ground", tileset, 0, 0);
     const trees = map.createLayer("trees", tileset, 0, 0);
+    if (!trees) {
+      throw new Error("Trees layer not found");
+    }
     const downStairs = map.createLayer("downstairs", dungObjs, 0, 0);
+    if (!downStairs) {
+      throw new Error("Downstairs layer not found");
+    }
     const intoForest = map.createLayer("intoTrees", dungObjs, 0, 0);
+    if (!intoForest) {
+      throw new Error("Into forest layer not found");
+    }
 
     // camera
     this.cameras.main.setZoom(2);
 
     // Get sample object layer from Tiled data if the player doesn't already have sample data
     if (this.samplesTouched) {
-      this.sampleObjs = [...data.sampleLocations["Town"]];
+      this.sampleLocations = [...(data.sampleLocations["Town"] || [])];
     } else {
-      this.sampleObjs =
+      this.sampleLocations =
         map.objects.find((layer) => layer.name === "samples")?.objects || [];
     }
 
@@ -127,7 +141,16 @@ export default class Town extends Phaser.Scene {
       data.sampleLocations,
       data.kills
     );
+
     const player = this.player;
+
+    // Create shots
+    this.shots = new Shots(this);
+
+    // Get zombie array for map
+    const zombieObjs = map.objects.find(
+      (layer) => layer.name === "zombies"
+    )?.objects;
 
     if (player.body) {
       // @ts-ignore
@@ -138,7 +161,7 @@ export default class Town extends Phaser.Scene {
     this.scene.run("GameUI", { data, player });
 
     // Create samples and set overlap with player
-    this.samples = createSamples(this.sampleObjs, this);
+    this.samples = createSamples(this.sampleLocations, this);
     if (this.samples) {
       this.samples.refresh();
     }
@@ -146,13 +169,8 @@ export default class Town extends Phaser.Scene {
       sampleCollector(player, sample, this);
     });
 
-    //creates shots
-    this.shots = new Shots(this);
-
-    // Get zombie array for map
-    const zombieObjs = map.objects.find(
-      (layer) => layer.name === "zombies"
-    ).objects;
+    // Create zombie animations first
+    Zombie.createAnimations(this.anims, "zombie7");
 
     // Create zombies
     zombieFactory(this, zombieObjs, "zombie7", this.player, trees);
@@ -178,12 +196,16 @@ export default class Town extends Phaser.Scene {
     this.physics.add.collider(this.zombies, this.zombies);
 
     this.zombies.forEach((zombie) => {
-      this.physics.add.collider(this.shots, zombie, (shot, zombie) => {
+      this.physics.add.collider(this.shots, zombie, (shot) => {
         let individualShot = this.shots.getFirstAlive();
         if (individualShot) {
           individualShot.setVisible(false);
           individualShot.setActive(false);
-          zombieDamage(shot, zombie, this, player);
+          zombieDamage({
+            shot: shot as Phaser.GameObjects.Sprite,
+            zombie,
+            player,
+          });
         }
       });
     });
@@ -199,9 +221,11 @@ export default class Town extends Phaser.Scene {
     this.physics.add.collider(player, trees);
 
     // Adds controls for firing
-    this.input.keyboard.on("keydown-SPACE", () => {
-      this.shots.fireShot(this.player.x, this.player.y, this.player.frame.name);
-    });
+    if (this.input.keyboard) {
+      this.input.keyboard.on("keydown-SPACE", () => {
+        this.shots.fireShot(player.x, player.y, player.frame.name);
+      });
+    }
 
     // ----------- Create NPC from Texture Atlas ---------- //
 
@@ -209,9 +233,11 @@ export default class Town extends Phaser.Scene {
 
     const npcs = this.physics.add.group({
       classType: testnpc,
+      // @ts-ignore
       collider: this.player,
       createCallback: (go) => {
         const npcwalk = go;
+        // @ts-ignore
         npcwalk.body.onCollide = true;
       },
     });
@@ -230,27 +256,37 @@ export default class Town extends Phaser.Scene {
     });
 
     // Create layer above player, zombies, npcs
-    const above_player = map.createLayer("roofTops", tileset, 0, 0);
+    map.createLayer("roofTops", tileset, 0, 0);
 
     sceneEvents.once("timerOver", () => {
-      this.player.isDead = true;
+      player.isDead = true;
     });
   } // end create
 
   update() {
     //  Input Events
-    if (this.player.isDead) {
+    if (this.player?.isDead) {
       gameOver(this.player, this);
     } else {
-      this.player.update();
+      this.player?.update();
     }
 
     this.zombies.forEach((z) => z.update());
 
-    if (this.player.body.embedded) {
+    // Player physics
+    // @ts-ignore
+    if (this.player?.body?.embedded) {
+      // @ts-ignore
       this.player.body.touching.none = false;
     }
-    if (this.player.body.touching.none && !this.player.body.wasTouching.none) {
+
+    // Player tint
+    if (
+      // @ts-ignore
+      this.player?.body?.touching?.none &&
+      // @ts-ignore
+      !this.player?.body?.wasTouching?.none
+    ) {
       this.player.clearTint();
     }
   }

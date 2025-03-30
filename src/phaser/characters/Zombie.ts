@@ -1,48 +1,59 @@
 import Entity from "../entities/Entity";
+import Player from "./Player";
 
 let zombieShot = 0;
 
 export default class Zombie extends Entity {
+  health: number;
+  target: Player;
+  speed: number;
+  idleFrame: {
+    down: number;
+    left: number;
+    right: number;
+    up: number;
+  };
+
+  // Add static method to create animations
   static createAnimations(
     anims: Phaser.Animations.AnimationManager,
-    spriteKey: string
+    textureKey: string
   ) {
+    // Walk animation
     const animFrameRate = 10;
+    const spriteKey = textureKey;
 
     if (!anims.exists(spriteKey + "-left")) {
       anims.create({
         key: spriteKey + "-left",
-        frames: anims.generateFrameNumbers(spriteKey, { start: 5, end: 3 }),
+        frames: anims.generateFrameNumbers(textureKey, { start: 5, end: 3 }),
         frameRate: animFrameRate,
         repeat: -1,
         yoyo: true,
       });
     }
-
     if (!anims.exists(spriteKey + "-right")) {
       anims.create({
         key: spriteKey + "-right",
-        frames: anims.generateFrameNumbers(spriteKey, { start: 8, end: 6 }),
+        frames: anims.generateFrameNumbers(textureKey, { start: 8, end: 6 }),
         frameRate: animFrameRate,
         repeat: -1,
         yoyo: true,
       });
     }
-
     if (!anims.exists(spriteKey + "-up")) {
       anims.create({
         key: spriteKey + "-up",
-        frames: anims.generateFrameNumbers(spriteKey, { start: 9, end: 11 }),
+        frames: anims.generateFrameNumbers(textureKey, { start: 9, end: 11 }),
         frameRate: animFrameRate,
         repeat: -1,
         yoyo: true,
       });
     }
-
     if (!anims.exists(spriteKey + "-down")) {
       anims.create({
         key: spriteKey + "-down",
-        frames: anims.generateFrameNumbers(spriteKey, { start: 0, end: 2 }),
+        frames: anims.generateFrameNumbers(textureKey, { start: 0, end: 2 }),
         frameRate: animFrameRate,
         repeat: -1,
         yoyo: true,
@@ -50,24 +61,21 @@ export default class Zombie extends Entity {
     }
   }
 
-  constructor(scene, x, y, textureKey, target, speed, health) {
-    super(scene, x, y, textureKey);
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    textureKey: string,
+    target: Player,
+    speed: number,
+    health: number
+  ) {
+    super(scene, x, y, textureKey, target);
     this.scene = scene;
-    //zombie health
-    this.zombieData = {};
-
-    if (textureKey === "zombieKing") {
-      this.zombieData.health = health ? health : 20;
-    } else {
-      this.zombieData.health = health ? health : 2;
-    }
-
+    this.health = textureKey === "zombieKing" ? 20 : health;
     // set target to player
     this.target = target;
     this.speed = speed; // px per second
-
-    // Call the static method instead of creating animations directly
-    Zombie.createAnimations(scene.anims, this.textureKey);
 
     this.idleFrame = {
       down: 1,
@@ -79,13 +87,17 @@ export default class Zombie extends Entity {
     this.setFrame(this.idleFrame.down);
   } //// end constructor
 
-  bounceBack(direction) {
-    this.body.setVelocity(direction.x, direction.y);
-    zombieShot = 1;
+  bounceBack(direction: Phaser.Math.Vector2) {
+    if (this.body) {
+      // @ts-ignore
+      this.body.setVelocity(direction.x, direction.y);
+      zombieShot = 1;
+    }
   }
 
   update() {
     const walkingSpeed = this.speed; //  px / second
+    if (!this.body) return;
     const prevVelocity = this.body.velocity.clone();
     const spriteKey = this.textureKey;
 

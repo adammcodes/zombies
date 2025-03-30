@@ -1,4 +1,5 @@
-import { sceneEvents } from "../../phaser/utils/SceneEvents";
+import { sceneEvents } from "@/phaser/utils/SceneEvents";
+import { GameData } from "@/phaser/types/game";
 
 import Phaser from "phaser";
 
@@ -7,7 +8,7 @@ export default class StartMenu extends Phaser.Scene {
     super("StartMenu");
   }
 
-  create(data: any) {
+  create(data: GameData) {
     // set avatar texture key to male as default if not defined
     let avatarTexture = data.avatar || "player-m";
     // enable options on scene creation

@@ -18,20 +18,19 @@ import createSamples from "@/phaser/helpers/sampleUtils/createSamples";
 import zombieFactory from "@/phaser/helpers/zombieUtils/zombieFactory";
 import zombieDamage from "@/phaser/helpers/zombieUtils/zombieDamage";
 import zombieHit from "@/phaser/helpers/zombieUtils/zombieHit";
+import Zombie from "@/phaser/characters/Zombie";
 
 export default class Forest extends Phaser.Scene {
   constructor() {
     super({ key: "Forest" });
-    this.shots;
-    this.player;
   }
 
   zombies = [];
-  sampleObjs: any[] = [];
+  shots!: Shots;
+  sampleLocations: any[] = [];
   samplesTouched = false;
   samples: any[] | null = null;
   player: Player | null = null;
-  shots: Shots | null = null;
 
   init(data: any) {
     if (!data.sampleLocations["Forest"]) {
@@ -84,9 +83,9 @@ export default class Forest extends Phaser.Scene {
 
     // Get sample object layer from Tiled data if the player doesn't already have sample data
     if (this.samplesTouched) {
-      this.sampleObjs = [...data.sampleLocations["Forest"]];
+      this.sampleLocations = [...data.sampleLocations["Forest"]];
     } else {
-      this.sampleObjs =
+      this.sampleLocations =
         map.objects.find((layer) => layer.name === "samples")?.objects || []; // returns an []
     }
 
@@ -109,7 +108,7 @@ export default class Forest extends Phaser.Scene {
     }
 
     // Create samples and set overlap with player
-    this.samples = createSamples(this.sampleObjs, this);
+    this.samples = createSamples(this.sampleLocations, this);
     if (this.samples) {
       // @ts-ignore
       this.samples.refresh();
@@ -138,6 +137,9 @@ export default class Forest extends Phaser.Scene {
     const zombieObjs = map.objects.find(
       (layer) => layer.name === "zombies"
     )?.objects;
+
+    // Create zombie animations first
+    Zombie.createAnimations(this.anims, "zombieGhost");
     // Create zombies // the zombieGhost sprite can pass through obstacles_2
     zombieFactory(this, zombieObjs, "zombieGhost", this.player, obstacles);
 
@@ -180,12 +182,16 @@ export default class Forest extends Phaser.Scene {
 
     // Physics for shots/zombies
     this.zombies.forEach((zombie) => {
-      this.physics.add.collider(this.shots, zombie, (shot, zombie) => {
+      this.physics.add.collider(this.shots, zombie, (shot) => {
         let individualShot = this.shots.getFirstAlive();
         if (individualShot) {
           individualShot.setVisible(false);
           individualShot.setActive(false);
-          zombieDamage(shot, zombie, this, player);
+          zombieDamage({
+            shot: shot as Phaser.GameObjects.Sprite,
+            zombie,
+            player,
+          });
         }
       });
     });

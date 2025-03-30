@@ -13,25 +13,33 @@ import zombieHit from "@/phaser/helpers/zombieUtils/zombieHit";
 
 import { sceneEvents } from "@/phaser/utils/SceneEvents";
 
+// Game Types
+import { BossRoom, GameData } from "@/phaser/types/game";
+import Zombie from "@/phaser/characters/Zombie";
+
 export default class FinalBoss extends Phaser.Scene {
   constructor() {
     super({ key: "FinalBoss" });
   }
 
   zombies = [];
+  shots!: Shots;
+  player!: Player;
   zombieBoss = [];
+  bossRoom!: BossRoom;
 
-  init(data) {}
+  init(_: GameData) {}
 
   preload() {
     preloadAssets(this);
   }
 
-  create(data) {
+  create(data: GameData) {
     //transition into dungeon scene
     this.cameras.main.fadeIn(2000);
     // environment
     const map = this.make.tilemap({ key: "finalBoss" });
+
     const tileset = map.addTilesetImage(
       "dungeon-tileset",
       "dungeonTiles",
@@ -40,9 +48,21 @@ export default class FinalBoss extends Phaser.Scene {
       1,
       2
     );
+    if (!tileset) {
+      throw new Error("Tileset not found");
+    }
+
     const dungObjs = map.addTilesetImage("dungeon-objects", "obj-tiles");
-    const ground = map.createLayer("Ground", tileset, 0, 0);
+
+    if (!dungObjs) {
+      throw new Error("Dungeon objects not found");
+    }
+
+    map.createLayer("Ground", tileset, 0, 0);
     const walls = map.createLayer("Walls", tileset, 0, 0);
+    if (!walls) {
+      throw new Error("Walls layer not found");
+    }
 
     // camera
     this.cameras.main.setZoom(1.7);
@@ -59,15 +79,18 @@ export default class FinalBoss extends Phaser.Scene {
       data.kills
     );
     const player = this.player;
-    player.body.setCollideWorldBounds(true);
+    // Create shots
+    this.shots = new Shots(this);
+
+    if (player.body) {
+      // @ts-ignore
+      player.body.setCollideWorldBounds(true);
+    }
 
     // Make camera stop at edge of map
     this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
     // make camera follow player
     this.cameras.main.startFollow(this.player);
-
-    //create shots
-    this.shots = new Shots(this);
 
     walls.setCollisionBetween(0, 300);
     this.physics.add.collider(player, walls);
@@ -75,7 +98,12 @@ export default class FinalBoss extends Phaser.Scene {
     // Get zombie obj array from map
     const zombieObjs = map.objects.find(
       (layer) => layer.name === "Zombies"
-    ).objects;
+    )?.objects;
+
+    // Create zombie animations first
+    Zombie.createAnimations(this.anims, "zombieGhost");
+    Zombie.createAnimations(this.anims, "zombieKing");
+
     // Create zombies
     zombieFactory(this, zombieObjs, "zombieGhost", this.player, walls);
 
@@ -102,12 +130,17 @@ export default class FinalBoss extends Phaser.Scene {
 
     // Physics for shots/zombies
     this.zombies.forEach((zombie) => {
-      this.physics.add.collider(this.shots, zombie, (shot, zombie) => {
+      this.physics.add.collider(this.shots, zombie, (shot) => {
         let individualShot = this.shots.getFirstAlive();
         if (individualShot) {
           individualShot.setVisible(false);
           individualShot.setActive(false);
-          zombieDamage(shot, zombie, this, player, this.bossRoom);
+          zombieDamage({
+            shot: shot as Phaser.GameObjects.Sprite,
+            zombie: zombie as Zombie,
+            player: this.player,
+            bossRoom: this.bossRoom,
+          });
         }
       });
     });
