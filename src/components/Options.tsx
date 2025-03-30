@@ -13,9 +13,9 @@ interface GameOptions {
 }
 
 export default function Options({ remoteOpen }: OptionsProps) {
-  const [sound, setSound] = useState(false);
+  const [sound, setSound] = useState(true);
   const [options, setOptions] = useState<GameOptions>({
-    disabled: false,
+    disabled: true,
     avatar: "player-m",
     gameMode: "normal",
   });
@@ -36,13 +36,13 @@ export default function Options({ remoteOpen }: OptionsProps) {
   /* --- Phaser <-> React event listeners and emitters --- */
 
   // open/close <Options/> container
-  // when <Options> is clicked from the Phaser startMenu.js scene
+  // when <Options> is clicked from the Phaser StartMenu.js scene
   sceneEvents.on("toggle-options", () => {
     remoteOpen();
   });
 
   sceneEvents.on("toggle-enable-options", () => {
-    // Disable save, avatar, and mode elements if not on startMenu screen
+    // Disable save, avatar, and mode elements if not on StartMenu screen
     setOptions({
       ...options,
       disabled: !options.disabled,
@@ -65,6 +65,7 @@ export default function Options({ remoteOpen }: OptionsProps) {
             name="sound"
             onClick={toggleSound}
             defaultChecked={sound}
+            disabled={options.disabled}
           />
         </div>
       </div>
@@ -98,7 +99,7 @@ export default function Options({ remoteOpen }: OptionsProps) {
             className="option-select"
             name="gameMode"
             defaultValue="normal"
-            disabled
+            disabled={options.disabled}
           >
             <option id="easy" value="easy">
               Easy
@@ -114,7 +115,7 @@ export default function Options({ remoteOpen }: OptionsProps) {
       </div>
 
       <div className="option-footer">
-        <div className="divider">--------------------------------</div>
+        <hr style={{ width: "100%" }} />
         <button
           onClick={saveOptions}
           disabled={options.disabled}

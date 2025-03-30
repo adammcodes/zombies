@@ -35,9 +35,9 @@ export default function GameTabContainer({
 
   return (
     <main className={mainClassNames}>
-      <caption className="box-title" onClick={openBox}>
+      <h3 className="box-title" onClick={openBox}>
         {captionText}
-      </caption>
+      </h3>
       {gameTabs[captionText as keyof typeof gameTabs]}
     </main>
   );
