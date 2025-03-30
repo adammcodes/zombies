@@ -122,7 +122,7 @@ export default class StartMenu extends Phaser.Scene {
 
     sceneEvents.on("save-options", (options: any) => {
       // ensure avatar or game mode cannot be changed while playing
-      // unless on startMenu scene
+      // unless on StartMenu scene
       if (this.scene.manager.isActive("StartMenu")) {
         avatarTexture = options.avatar; // reassign avatar texture key
         // in future change gameMode (no implementation yet)

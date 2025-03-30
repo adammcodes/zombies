@@ -5,7 +5,7 @@ import { sceneEvents } from "@/phaser/utils/SceneEvents";
 import Player from "@/phaser/characters/Player";
 import Shots from "@/phaser/entities/Shots";
 import testnpc from "@/phaser/characters/testnpc";
-import { createNpcAnims } from "@/phaser/utils/testnpcanims";
+import { createNpcAnims } from "@/phaser/utils/createNPCAnims";
 
 // Data Helpers
 import gameOver from "@/phaser/helpers/dataUtils/gameOver";
