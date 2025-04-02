@@ -4,7 +4,7 @@ export default function Navigation() {
   return (
     <header>
       <nav>
-        <span className="logo">LOCKDOWN</span>
+        <span className="logo">ZOMBIES</span>
         {/* <ul className="nav-list">
           <li>Highscores</li>
           <li>Controls</li>
