@@ -1,5 +1,7 @@
 # Zombies
 
+[Play the game](https://adammcodes-zombies.netlify.app/).
+
 Zombies is a rebuild of a game called Lockdown, which was our web development bootcamp final project. The original repo with all contributors is [here](https://github.com/adamm13/lockdown).
 
 ## Rebuild Goals
