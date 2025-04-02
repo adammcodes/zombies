@@ -1,12 +1,13 @@
 # Zombies
 
-Zombies is a rebuild of a game called Lockdown, which was our web development bootcamp final project.
+Zombies is a rebuild of a game called Lockdown, which was our web development bootcamp final project. The original repo with all contributors is [here](https://github.com/adamm13/lockdown).
 
 ## Rebuild Goals
 
 - Move off react-scripts and build with Vite
 - Migrate from JavaScript to Typescript
 - Use modern css instead of sass
+- Update to modern dependencies and build tools
 
 # React + TypeScript + Vite
 
